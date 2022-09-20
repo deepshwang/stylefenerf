@@ -39,6 +39,7 @@ if __name__ == '__main__':
     parser.add_argument('--image_size', type=int, default=256)
     parser.add_argument('--ray_step_multiplier', type=int, default=2)
     parser.add_argument('--curriculum', type=str, default='CelebA')
+    parser.add_argument('--create_real_for_fid', type=bool, default=False)
 
     opt = parser.parse_args()
 
@@ -56,6 +57,7 @@ if __name__ == '__main__':
     curriculum = {key: value for key, value in curriculum.items() if type(key) is str}
     os.makedirs(opt.output_dir, exist_ok=True)
     os.makedirs(opt.output_dir+"/RGB_orig", exist_ok=True)
+    os.makedirs(opt.output_dir+"/RGB_real", exist_ok=True)
     os.makedirs(opt.output_dir+"/SEG_orig", exist_ok=True)
 
     generator = torch.load(opt.path, map_location=torch.device(device))
@@ -74,13 +76,12 @@ if __name__ == '__main__':
     face_angles = [a + math.pi/2 for a in face_angles]
     used_face_angles = []
     os.makedirs(os.path.join(opt.output_dir, 'fenerf_latents'), exist_ok=True)
-    for seed in tqdm(range(opt.seeds)):
+    for seed in tqdm(range(opt.seeds, 2 * opt.seeds)):
         seed = int(seed)
         torch.manual_seed(seed)
         z_geo = torch.randn((1, 256), device=device)
         z_app = torch.randn((1, 256), device=device)
         rand_angle_idx = random.randint(0,len(face_angles)-1) 
-        used_face_angles.append(face_angles[rand_angle_idx])
 
         # Saving latents
         geo_frequencies, geo_phase_shifts = generator.siren.geo_mapping_network(z_geo)
@@ -102,14 +103,20 @@ if __name__ == '__main__':
                 'w_app_phase_shift_offsets': app_phase_shift_offsets
         }
         
-
-        torch.save(meta, os.path.join(opt.output_dir, 'fenerf_latents', 'freq_phase_offset_{}.pt'.format(str(seed).zfill(5))) ) 
+        if seed < opt.seeds:
+            torch.save(meta, os.path.join(opt.output_dir, 'fenerf_latents', 'freq_phase_offset_{}.pt'.format(str(seed).zfill(5))) ) 
+            
         
-       
-        # Render with saved latents
-        curriculum['h_mean'] = face_angles[rand_angle_idx]
-        img, segmap = generate_img(generator, z_geo, z_app, **curriculum)
-        save_image(img, os.path.join(opt.output_dir, 'RGB_orig/{}.png'.format(str(seed).zfill(5))), normalize=True, range=(-1,1))
+            # Render with saved latents
+            used_face_angles.append(face_angles[rand_angle_idx])
+            curriculum['h_mean'] = face_angles[rand_angle_idx]
+            img, segmap = generate_img(generator, z_geo, z_app, **curriculum)
+            save_image(img, os.path.join(opt.output_dir, 'RGB_orig/{}.png'.format(str(seed).zfill(5))), normalize=True, range=(-1,1))
+        else:
+            curriculum['h_mean'] = face_angles[rand_angle_idx]
+            img, segmap = generate_img(generator, z_geo, z_app, **curriculum)
+            save_image(img, os.path.join(opt.output_dir, 'RGB_real/{}.png'.format(str(seed-opt.seeds).zfill(5))), normalize=True, range=(-1,1))
+ 
         #save_image(segmap, os.path.join(opt.output_dir, 'SEG_orig/{}.png'.format(str(seed).zfill(5))), noralize=True, range=(0,1))
     
     with open(opt.output_dir + '/face_angles_{}.pkl'.format(opt.seeds), 'wb') as f:

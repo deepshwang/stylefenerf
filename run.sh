@@ -5,7 +5,7 @@ GEN_ORIG=${3:-false}
 USE_ORIGINAL_METHOD=${4:-false}
 
 #Configs
-N_SAMPLES=8
+N_SAMPLES=200
 OUTPUT_DIR=/home/nas4_user/sungwonhwang/logs/fenerf_styleclip_e4e/outputs
 
 #Pretrained models directory

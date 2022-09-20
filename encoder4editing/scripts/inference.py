@@ -28,9 +28,10 @@ def main(args):
 
     # Check if latents exist
     latents_file_path = os.path.join(args.save_dir, 'e4e_latents.pt')
-    if os.path.exists(latents_file_path):
-        latent_codes = torch.load(latents_file_path).to(device)
-    else:
+    #if os.path.exists(latents_file_path):
+    #    latent_codes = torch.load(latents_file_path).to(device)
+    #else:
+    if True:
         latent_codes = get_all_latents(net, data_loader, args.n_sample, is_cars=is_cars)
         torch.save(latent_codes, latents_file_path)
 
@@ -50,7 +51,6 @@ def setup_data_loader(args, opts):
                                     transform=transforms_dict['transform_test'],
                                     preprocess=align_function,
                                     opts=opts)
-
     data_loader = DataLoader(test_dataset,
                              batch_size=args.batch,
                              shuffle=False,
