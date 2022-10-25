@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch
 from math import log2
 from kornia.filters import filter2D
-
+#from kornia import filter2D
 
 class Blur(nn.Module):
     def __init__(self):

@@ -6,13 +6,13 @@ USE_ORIGINAL_METHOD=${4:-false}
 
 #Configs
 N_SAMPLES=1000
-OUTPUT_DIR=/home/nas4_user/sungwonhwang/logs/fenerf_styleclip_e4e/outputs
+OUTPUT_DIR=/home/nas2_userG/junhahyung/fenerf/outputs
+mkdir $OUTPUT_DIR
 
 #Pretrained models directory
 FENERF_GENERATOR_PATH=/home/nas4_user/sungwonhwang/logs/FENeRF/pretrained_models/315000_generator.pth
 EE_PATH=/home/nas4_user/sungwonhwang/logs/encoder4editing/pretrained_models/e4e_ffhq_encode.pt
 
-mkdir $OUTPUT_DIR
 
 if [ "$GEN_ORIG" == true ]; then
     # [1] Create FENeRF samples
@@ -33,7 +33,7 @@ cd ..
 
 # # [4] Extract segmentation map from edited image for FENeRF inversion (editing).
 cd FENeRF
-bash scripts/edited_segmentation.sh $CUDA_DEVICE $EDIT_TEXT
+bash scripts/edited_segmentation.sh $CUDA_DEVICE $EDIT_TEXT $OUTPUT_DIR
 cd ..
 
 # # [5] Conduct FENeRF Inversion

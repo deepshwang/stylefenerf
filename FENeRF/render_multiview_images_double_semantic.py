@@ -76,7 +76,7 @@ if __name__ == '__main__':
     face_angles = [a + math.pi/2 for a in face_angles]
     used_face_angles = []
     os.makedirs(os.path.join(opt.output_dir, 'fenerf_latents'), exist_ok=True)
-    for seed in tqdm(range(opt.seeds, 2 * opt.seeds)):
+    for seed in tqdm(range(opt.seeds)):
         seed = int(seed)
         torch.manual_seed(seed)
         z_geo = torch.randn((1, 256), device=device)
@@ -103,7 +103,8 @@ if __name__ == '__main__':
                 'w_app_phase_shift_offsets': app_phase_shift_offsets
         }
         
-        if seed < opt.seeds:
+        #if seed < opt.seeds:
+        if True:
             torch.save(meta, os.path.join(opt.output_dir, 'fenerf_latents', 'freq_phase_offset_{}.pt'.format(str(seed).zfill(5))) ) 
             
         
@@ -112,10 +113,10 @@ if __name__ == '__main__':
             curriculum['h_mean'] = face_angles[rand_angle_idx]
             img, segmap = generate_img(generator, z_geo, z_app, **curriculum)
             save_image(img, os.path.join(opt.output_dir, 'RGB_orig/{}.png'.format(str(seed).zfill(5))), normalize=True, range=(-1,1))
-        else:
-            curriculum['h_mean'] = face_angles[rand_angle_idx]
-            img, segmap = generate_img(generator, z_geo, z_app, **curriculum)
-            save_image(img, os.path.join(opt.output_dir, 'RGB_real/{}.png'.format(str(seed-opt.seeds).zfill(5))), normalize=True, range=(-1,1))
+        #else:
+        #    curriculum['h_mean'] = face_angles[rand_angle_idx]
+        #    img, segmap = generate_img(generator, z_geo, z_app, **curriculum)
+        #    save_image(img, os.path.join(opt.output_dir, 'RGB_real/{}.png'.format(str(seed-opt.seeds).zfill(5))), normalize=True, range=(-1,1))
  
         #save_image(segmap, os.path.join(opt.output_dir, 'SEG_orig/{}.png'.format(str(seed).zfill(5))), noralize=True, range=(0,1))
     

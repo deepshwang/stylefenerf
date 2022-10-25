@@ -8,6 +8,7 @@ import torch
 from torchvision import transforms, utils
 from generators.BiSeNet import BiSeNet
 import argparse
+from tqdm import tqdm
 
 remap_list_celebahq = torch.tensor([0, 1, 6, 7, 4, 5, 2, 2, 10, 11, 12, 8, 9, 15, 3, 17, 16, 18, 13, 14]).float()
 
@@ -109,7 +110,7 @@ if __name__ == "__main__":
     #save_dir = '/home/nas4_user/sungwonhwang/logs/FENeRF/render/StyleCLIP_edit/surprised/inference_results/segmaps'
     save_dir = args.save_dir
     bisNet, to_tensor = initFaceParsing(path=ckpt_dir)
-    for img_path in sorted(img_paths):
+    for img_path in tqdm(sorted(img_paths), total=len(img_paths)):
         face_parsing(img_path, save_dir, bisNet)
         
         
